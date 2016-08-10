@@ -1,5 +1,5 @@
 /*
- * Diff two list in O(n*m)
+ * Diff two lists/string in O(n*m)
  *
  * @param {Array} oldList - Original List
  * @param {Array} newList - List After certain insertions, removes, or moves
@@ -16,7 +16,7 @@
     return
   }
   if (typeof window !== 'undefined') {
-    window.diffList = factory()
+    window.listDiff = factory()
   }
 }(function () {
   'use strict'
@@ -26,9 +26,8 @@
   var INSERTION = 1
   var SUBSTITUTION = 2
 
-  //list and key name
+  //lists and key name
   var oldList, newList, keyName
-
   //distance map
   var map = []
   //distance value
