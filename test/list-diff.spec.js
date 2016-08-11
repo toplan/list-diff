@@ -70,20 +70,19 @@ describe('List diff', function () {
   it('Moving items from front to back', function () {
     var before = ['a', 'b', 'c', 'd', 'e', 'f']
     var after = ['a', 'c', 'e', 'f', 'b', 'd']
-    var patches = diff(before, after, function (item) { return item })
+    var patches = diff(before, after)
 
     patches.length.should.be.equal(4)
     perform(before, patches)
     assertListEqual(after, before)
   })
-  return
 
   it('Miscellaneous actions', function () {
     var before = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
     var after = ['h', 'i', 'a', 'c', 'd', 'u', 'e', 'f', 'g', 'j', 'b', 'z', 'x', 'y']
-    var diffs = diff.diff(before, after, function (item) { return item })
-    diffs.children.should.be.deep.equal(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
-    perform(before, diffs)
+    var patches = diff(before, after)
+
+    perform(before, patches)
     assertListEqual(after, before)
   })
 
@@ -126,8 +125,8 @@ describe('List diff', function () {
         after.splice(pos, 0, character)
       }
 
-      var diffs = diff.diff(before, after, function (item) { return item })
-      perform(before, diffs)
+      var patches = diff(before, after)
+      perform(before, patches)
       assertListEqual(after, before)
     }
   })
@@ -135,39 +134,39 @@ describe('List diff', function () {
   it('Test with no key: string item and removing', function () {
     var before = ['a', 'b', 'c', 'd', 'e']
     var after = ['c', 'd', 'e', 'a']
-    var diffs = diff.diff(before, after)
-    diffs.moves.length.should.be.equal(1)
-    diffs.children.should.be.deep.equal(['c', 'd', 'e', 'a', null])
-    perform(before, diffs)
-    before.should.be.deep.equal(['a', 'b', 'c', 'd'])
+    var patches = diff(before, after)
+
+    patches.length.should.be.equal(3)
+    perform(before, patches)
+    assertListEqual(after, before)
   })
 
   it('Test with no key: string item and inserting', function () {
     var before = ['a', 'b', 'c', 'd', 'e']
     var after = ['c', 'd', 'e', 'a', 'g', 'h', 'j']
-    var diffs = diff.diff(before, after)
-    diffs.moves.length.should.be.equal(2)
-    diffs.children.should.be.deep.equal(['c', 'd', 'e', 'a', 'g'])
-    perform(before, diffs)
-    before.should.be.deep.equal(['a', 'b', 'c', 'd', 'e', 'h', 'j'])
+    var patches = diff(before, after)
+
+    patches.length.should.be.equal(6)
+    perform(before, patches)
+    assertListEqual(after, before)
   })
 
   it('Test with no key: object item', function () {
     var before = [{id: 'a'}, {id: 'b'}, {id: 'c'}, {id: 'd'}, {id: 'e'}]
     var after = [{id: 'a'}, {id: 'b'}, {id: 'c'}, {id: 'd'}, {id: 'e'}, {id: 'f'}]
-    var diffs = diff.diff(before, after)
-    diffs.children.should.be.deep.equal([{id: 'a'}, {id: 'b'}, {id: 'c'}, {id: 'd'}, {id: 'e'}])
-    diffs.moves.length.should.be.equal(1)
-    perform(before, diffs)
+    var patches = diff(before, after)
+
+    patches.length.should.be.equal(6)
+    perform(before, patches)
     assertListEqual(after, before)
   })
 
   it('Mix keyed items with unkeyed items', function () {
     var before = [{id: 'a'}, {id: 'b'}, {key: 'c'}, {key: 'd'}, {id: 'e'}, {id: 'f'}, {id: 'g'}, {id: 'h'}]
     var after = [{id: 'b', flag: 'yes'}, {key: 'c'}, {id: 'e'}, {id: 'f'}, {id: 'g'}, {key: 'd'}]
-    var diffs = diff.diff(before, after, 'id')
-    diffs.children.should.be.deep.equal([null, {id: 'b', flag: 'yes'}, {key: 'c'}, {key: 'd'}, {id: 'e'}, {id: 'f'}, {id: 'g'}, null])
-    perform(before, diffs)
+    var patches = diff(before, after, 'id')
+
+    perform(before, patches)
     before[0] = {id: 'b', flag: 'yes'} // because perform only operates on origin list
     assertListEqual(after, before)
   })
@@ -177,12 +176,14 @@ describe('List diff', function () {
     var oldList = [{id: 'a'}, {id: 'b'}, {id: 'c'}, {id: 'd'}, {id: 'e'}]
     var newList = [{id: 'c'}, {id: 'a'}, {id: 'b'}, {id: 'e'}, {id: 'f'}]
 
-    var moves = diff(oldList, newList, 'id').moves
-    moves.forEach(function (move) {
-      if (move.type === 0) {
-        oldList.splice(move.index, 1)
+    var patches = diff(oldList, newList, 'id')
+    patches.forEach(function (patch) {
+      if (patch.type === 0) {
+        oldList.splice(patch.index, 1)
+      } else if (patch.type == 1) {
+        oldList.splice(patch.index, 0, patch.item)
       } else {
-        oldList.splice(move.index, 0, move.item)
+        oldList.splice(patch.index, 1, patch.item)
       }
     })
     assertListEqual(newList, oldList)
