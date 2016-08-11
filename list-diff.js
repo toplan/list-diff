@@ -19,25 +19,25 @@
 }(function () {
   'use strict'
 
-  //patch type
+  // patch type
   var DELETION = 0
   var INSERTION = 1
   var SUBSTITUTION = 2
 
-  //<Array|String> lists
+  // <Array|String> lists
   var oldList, newList
-  //<String> key name
+  // <String> key name
   var keyName
-  //<Array> roadmap
+  // <Array> roadmap
   var roadmap
-  //<Array> patches for old list/string
+  // <Array> patches for old list/string
   var patches
 
   var isArray = Array.isArray || function (target) {
-    return target && Object.prototype.toString.call(target) === "[object Array]"
+    return target && Object.prototype.toString.call(target) === '[object Array]'
   }
 
-  function Patch(index, type, item) {
+  function Patch (index, type, item) {
     if (!(this instanceof Patch)) {
       return new Patch(index, type, item)
     }
@@ -46,7 +46,7 @@
     this.item = item
   }
 
-  function init($oldList, $newList, $keyName) {
+  function init ($oldList, $newList, $keyName) {
     roadmap = []
     patches = []
 
@@ -57,18 +57,18 @@
     initRoadmap()
   }
 
-  function initRoadmap() {
+  function initRoadmap () {
     var oldLen = oldList.length
     var newLen = newList.length
     for (var i = 0; i <= oldLen; i++) {
       roadmap[i] = [i]
     }
-    for (var i = 0; i <= newLen; i++) {
+    for (i = 0; i <= newLen; i++) {
       roadmap[0][i] = i
     }
   }
 
-  function compute() {
+  function compute () {
     var oldLen = oldList.length
     var newLen = newList.length
     for (var i = 1; i <= oldLen; i++) {
@@ -82,21 +82,21 @@
     createPatches()
   }
 
-  function deletion(oldPos, newPos) {
+  function deletion (oldPos, newPos) {
     return roadmap[oldPos - 1][newPos] + 1
   }
 
-  function insertion(oldPos, newPos) {
+  function insertion (oldPos, newPos) {
     return roadmap[oldPos][newPos - 1] + 1
   }
 
-  function substitution(oldPos, newPos) {
+  function substitution (oldPos, newPos) {
     var oldItem = oldList[oldPos - 1]
     var newItem = newList[newPos - 1]
     return roadmap[oldPos - 1][newPos - 1] + cost(oldItem, newItem)
   }
 
-  function cost(oldItem, newItem) {
+  function cost (oldItem, newItem) {
     if (newItem === oldItem) {
       return 0
     }
@@ -111,7 +111,7 @@
     return 1
   }
 
-  function createPatches() {
+  function createPatches () {
     var oldPos = roadmap.length - 1
     var newPos = ((roadmap[0] && roadmap[0].length) || 0) - 1
 
@@ -140,11 +140,11 @@
     }
   }
 
-  function destory() {
+  function destory () {
     roadmap = oldList = newList = keyName = void 0
   }
 
-  function diff(oldList, newList, keyName) {
+  function diff (oldList, newList, keyName) {
     if (typeof oldList !== 'string' && !isArray(oldList)) {
       oldList = [oldList]
     }
@@ -152,11 +152,11 @@
       newList = [newList]
     }
 
-    //initialize the data
+    // initialize the data
     init(oldList, newList, keyName)
-    //start computing
+    // start computing
     compute()
-    //destory data
+    // destory data
     destory()
 
     return patches
