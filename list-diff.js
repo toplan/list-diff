@@ -120,23 +120,25 @@
     var oldPos = roadmap.length - 1
     var newPos = ((roadmap[0] && roadmap[0].length) || 0) - 1
 
-    while (oldPos > 0 && newPos > 0) {
+    while (oldPos >= 0 && newPos >= 0) {
       var distance = roadmap[oldPos][newPos]
-      var deletion = roadmap[oldPos - 1][newPos]
-      var insertion = roadmap[oldPos][newPos - 1]
-      var substitution = roadmap[oldPos - 1][newPos - 1]
-      if (distance == deletion + 1) {
-        patches.unshift(Patch(oldPos - 1, DELETION))
+      var deletion = oldPos - 1 >= 0 ? roadmap[oldPos - 1][newPos] : void 0
+      var insertion = newPos - 1 >= 0 ? roadmap[oldPos][newPos - 1] : void 0
+      var substitution = (oldPos - 1 >= 0 && newPos - 1 >= 0)
+        ? roadmap[oldPos - 1][newPos - 1]
+        : void 0
+      if (deletion !== void 0 && distance === deletion + 1) {
+        patches.push(Patch(oldPos - 1, DELETION))
         oldPos--
         continue
       }
-      if (distance == insertion + 1) {
-        patches.unshift(Patch(oldPos - 1, INSERTION, newList[newPos - 1]))
+      if (insertion !== void 0 && distance === insertion + 1) {
+        patches.push(Patch(oldPos - 1, INSERTION, newList[newPos - 1]))
         newPos--
         continue
       }
-      if (distance === substitution + 1) {
-        patches.unshift(Patch(oldPos - 1, SUBSTITUTION, newList[newPos - 1]))
+      if (substitution !== void 0 && distance === substitution + 1) {
+        patches.push(Patch(oldPos - 1, SUBSTITUTION, newList[newPos - 1]))
       }
       oldPos--
       newPos--
