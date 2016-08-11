@@ -47,36 +47,36 @@ describe('List diff', function () {
     assertListEqual(after, before)
   })
 
-  return
   it('Inserting items', function () {
     var before = ['a', 'b', 'c', 'd']
     var after = ['a', 'b', 'e', 'f', 'c', 'd']
-    var diffs = diff.diff(before, after, function (item) { return item })
-    diffs.moves.length.should.be.equal(2)
-    diffs.children.should.be.deep.equal(['a', 'b', 'c', 'd'])
-    perform(before, diffs)
+    var patches = diff(before, after)
+
+    patches.length.should.be.equal(2)
+    perform(before, patches)
     assertListEqual(after, before)
   })
 
   it('Moving items from back to front', function () {
     var before = ['a', 'b', 'c', 'd', 'e', 'f']
     var after = ['a', 'b', 'e', 'f', 'c', 'd', 'g', 'h']
-    var diffs = diff.diff(before, after, function (item) { return item })
-    diffs.moves.length.should.be.equal(4)
-    diffs.children.should.be.deep.equal(['a', 'b', 'c', 'd', 'e', 'f'])
-    perform(before, diffs)
+    var patches = diff(before, after)
+
+    patches.length.should.be.equal(4)
+    perform(before, patches)
     assertListEqual(after, before)
   })
 
   it('Moving items from front to back', function () {
     var before = ['a', 'b', 'c', 'd', 'e', 'f']
     var after = ['a', 'c', 'e', 'f', 'b', 'd']
-    var diffs = diff.diff(before, after, function (item) { return item })
-    diffs.moves.length.should.be.equal(4)
-    diffs.children.should.be.deep.equal(['a', 'b', 'c', 'd', 'e', 'f'])
-    perform(before, diffs)
+    var patches = diff(before, after, function (item) { return item })
+
+    patches.length.should.be.equal(4)
+    perform(before, patches)
     assertListEqual(after, before)
   })
+  return
 
   it('Miscellaneous actions', function () {
     var before = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']

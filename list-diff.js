@@ -128,7 +128,7 @@
         continue
       }
       if (insertion !== void 0 && distance === insertion + 1) {
-        patches.push(Patch(oldPos - 1, INSERTION, newList[newPos - 1]))
+        patches.push(Patch(oldPos, INSERTION, newList[newPos - 1]))
         newPos--
         continue
       }
