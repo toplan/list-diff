@@ -1,12 +1,12 @@
 /*
- * Diff two lists/string in O(n*m)
+ * Diff two lists/strings in O(n*m)
  *
  * @param {Array} oldList - Original List
  * @param {Array} newList - List After certain insertions, removes, or moves
  * @return {Object} - {distance: Int}
- *                  - {map: <Array>}
- *                  - {actions: <Array>}
- *                  - actions is a list of actions that telling how to remove and insert
+ *                  - {roadmap: <Array>}
+ *                  - {patches: <Array>}
+ *                  - patches is a list of patches that telling how to remove and insert
  */
 ;(function (factory) {
   'use strict'
@@ -21,52 +21,55 @@
 }(function () {
   'use strict'
 
-  //action types
+  //patch type
   var DELETION = 0
   var INSERTION = 1
   var SUBSTITUTION = 2
 
-  //lists and key name
-  var oldList, newList, keyName
-  //distance map
-  var map = []
-  //distance value
-  var distance = 0
-  //actions for old list
-  var actions = []
+  //<Array|String> lists
+  var oldList, newList
+  //<String> key name
+  var keyName
+  //<Array> roadmap
+  var roadmap
+  //<Int> distance value
+  var distance
+  //<Array> patches for old list/string
+  var patches
 
   var isArray = Array.isArray || function (target) {
     return target && Object.prototype.toString.call(target) === "[object Array]"
   }
 
-  function Action(index, type, item) {
-    if (!(this instanceof Action)) {
-      return new Action(index, type, item)
+  function Patch(index, type, item) {
+    if (!(this instanceof Patch)) {
+      return new Patch(index, type, item)
     }
     this.index = index
     this.type = type
     this.item = item
   }
 
-  function init(obj) {
-    map = []
-    actions = []
+  function init($oldList, $newList, $keyName) {
+    roadmap = []
+    distance = 0
+    patches = []
 
-    oldList = obj.oldList || []
-    newList = obj.newList || []
-    keyName = obj.keyName
+    oldList = $oldList || []
+    newList = $newList || []
+    keyName = $keyName
 
-    initMap()
+    initRoadmap()
   }
 
-  function initMap() {
+  function initRoadmap() {
     var oldLen = oldList.length
     var newLen = newList.length
     for (var i = 0; i <= oldLen; i++) {
-      map[i] = [i]
+      roadmap[i] = [i]
     }
     for (var i = 0; i <= newLen; i++) {
-      map[0][i] = i
+      roadmap[0][i] = i
     }
   }
 
@@ -78,24 +81,24 @@
         var deletionDis = deletion(i, j)
         var insertionDis = insertion(i, j)
         var substitutionDis = substitution(i, j)
-        map[i][j] = distance = Math.min(deletionDis, insertionDis, substitutionDis)
+        roadmap[i][j] = distance = Math.min(deletionDis, insertionDis, substitutionDis)
       }
     }
-    createActions()
+    createPatches()
   }
 
   function deletion(oldPos, newPos) {
-    return map[oldPos - 1][newPos] + 1
+    return roadmap[oldPos - 1][newPos] + 1
   }
 
   function insertion(oldPos, newPos) {
-    return map[oldPos][newPos - 1] + 1
+    return roadmap[oldPos][newPos - 1] + 1
   }
 
   function substitution(oldPos, newPos) {
     var oldItem = oldList[oldPos - 1]
     var newItem = newList[newPos - 1]
-    return map[oldPos - 1][newPos - 1] + cost(oldItem, newItem)
+    return roadmap[oldPos - 1][newPos - 1] + cost(oldItem, newItem)
   }
 
   function cost(oldItem, newItem) {
@@ -113,29 +116,37 @@
     return 1
   }
 
-  function createActions() {
-    var oldPos = map.length - 1
-    var newPos = ((map[0] && map[0].length) || 0) - 1
+  function createPatches() {
+    var oldPos = roadmap.length - 1
+    var newPos = ((roadmap[0] && roadmap[0].length) || 0) - 1
 
     while (oldPos > 0 && newPos > 0) {
-      var distance = map[oldPos][newPos]
-      var deletion = map[oldPos - 1][newPos]
-      var insertion = map[oldPos][newPos - 1]
-      var substitution = map[oldPos - 1][newPos - 1]
+      var distance = roadmap[oldPos][newPos]
+      var deletion = roadmap[oldPos - 1][newPos]
+      var insertion = roadmap[oldPos][newPos - 1]
+      var substitution = roadmap[oldPos - 1][newPos - 1]
       if (distance == deletion + 1) {
-        actions.unshift(Action(oldPos - 1, DELETION))
+        patches.unshift(Patch(oldPos - 1, DELETION))
         oldPos--
         continue
-      } else if (distance == insertion + 1) {
-        actions.unshift(Action(oldPos - 1, INSERTION, newList[newPos - 1]))
+      }
+      if (distance == insertion + 1) {
+        patches.unshift(Patch(oldPos - 1, INSERTION, newList[newPos - 1]))
         newPos--
         continue
-      } else if (distance === substitution + 1) {
-        actions.unshift(Action(oldPos - 1, SUBSTITUTION, newList[newPos - 1]))
+      }
+      if (distance === substitution + 1) {
+        patches.unshift(Patch(oldPos - 1, SUBSTITUTION, newList[newPos - 1]))
       }
       oldPos--
       newPos--
     }
+  }
+
+  function destory() {
+    oldList = newList = keyName = void 0
+    roadmap = patches = void 0
+    distance = 0
   }
 
   function diff(oldList, newList, keyName) {
@@ -146,19 +157,20 @@
       newList = [newList]
     }
 
-    init({
-      'oldList': oldList,
-      'newList': newList,
-      'keyName': keyName
-    })
-
+    //initialize the data
+    init(oldList, newList, keyName)
+    //start computing
     compute()
-
-    return {
+    //generate the result data
+    var result = {
       distance: distance,
-      map: map,
-      actions: actions
+      roadmap: roadmap,
+      patches: patches
     }
+    //destory data
+    destory()
+
+    return result
   }
 
   diff.DELETION = DELETION

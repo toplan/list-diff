@@ -1,0 +1,30 @@
+{
+  "name": "list-diff.js",
+  "version": "0.1.0",
+  "description": "Diff two lists/strings",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard && npm run cover",
+    "cover": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec",
+    "dev": "nodemon --exec mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/toplan/list-diff.git"
+  },
+  "keywords": [
+    "diff",
+    "list diff"
+  ],
+  "author": "toplan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/toplan/list-diff/issues"
+  },
+  "homepage": "https://github.com/toplan/list-diff",
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "mocha": "^2.3.4",
+    "codecov.io": "^0.1.6"
+  }
+}
