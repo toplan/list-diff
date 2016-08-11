@@ -180,7 +180,7 @@ describe('List diff', function () {
     patches.forEach(function (patch) {
       if (patch.type === 0) {
         oldList.splice(patch.index, 1)
-      } else if (patch.type == 1) {
+      } else if (patch.type === 1) {
         oldList.splice(patch.index, 0, patch.item)
       } else {
         oldList.splice(patch.index, 1, patch.item)
