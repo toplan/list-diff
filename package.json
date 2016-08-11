@@ -1,7 +1,7 @@
 {
   "name": "list-diff.js",
   "version": "0.1.0",
-  "description": "Diff two lists/strings",
+  "description": "Diff two lists/strings in O(n*m)",
   "main": "index.js",
   "scripts": {
     "test": "standard && npm run cover",
