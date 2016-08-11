@@ -30,27 +30,24 @@ describe('List diff', function () {
   it('Removing items', function () {
     var before = [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}]
     var after = [{id: 2}, {id: 3}, {id: 1}]
-    var result = diff(before, after, 'id')
+    var patches = diff(before, after, 'id')
 
-    result.distance.should.be.equal(4)
-    result.patches.length.should.be.equal(4)
+    patches.length.should.be.equal(4)
+    perform(before, patches)
+    assertListEqual(after, before)
+  })
 
-    perform(before, result.patches)
+  it('Removing items in the middle', function () {
+    var before = [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}]
+    var after = [{id: 1}, {id: 2}, {id: 4}, {id: 6}]
+    var patches = diff(before, after, 'id')
+
+    patches.length.should.be.equal(2)
+    perform(before, patches)
     assertListEqual(after, before)
   })
 
   return
-
-  it('Removing items in the middel', function () {
-    var before = [{id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5}, {id: 6}]
-    var after = [{id: 1}, {id: 2}, {id: 4}, {id: 6}]
-    var diffs = diff.diff(before, after, 'id')
-    perform(before, diffs)
-    diffs.children.should.be.deep.equal([{id: 1}, {id: 2}, null, {id: 4}, null, {id: 6}])
-    diffs.moves.length.should.be.equal(2)
-    assertListEqual(after, before)
-  })
-
   it('Inserting items', function () {
     var before = ['a', 'b', 'c', 'd']
     var after = ['a', 'b', 'e', 'f', 'c', 'd']

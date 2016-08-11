@@ -3,10 +3,8 @@
  *
  * @param {Array} oldList - Original List
  * @param {Array} newList - List After certain insertions, removes, or moves
- * @return {Object} - {distance: Int}
- *                  - {roadmap: <Array>}
- *                  - {patches: <Array>}
- *                  - patches is a list of patches that telling how to remove and insert
+ *
+ * @return {Array} - a list of patches that telling how to remove and insert
  */
 ;(function (factory) {
   'use strict'
@@ -32,8 +30,6 @@
   var keyName
   //<Array> roadmap
   var roadmap
-  //<Int> distance value
-  var distance
   //<Array> patches for old list/string
   var patches
 
@@ -52,7 +48,6 @@
 
   function init($oldList, $newList, $keyName) {
     roadmap = []
-    distance = 0
     patches = []
 
     oldList = $oldList || []
@@ -81,7 +76,7 @@
         var deletionDis = deletion(i, j)
         var insertionDis = insertion(i, j)
         var substitutionDis = substitution(i, j)
-        roadmap[i][j] = distance = Math.min(deletionDis, insertionDis, substitutionDis)
+        roadmap[i][j] = Math.min(deletionDis, insertionDis, substitutionDis)
       }
     }
     createPatches()
@@ -146,9 +141,7 @@
   }
 
   function destory() {
-    oldList = newList = keyName = void 0
-    roadmap = patches = void 0
-    distance = 0
+    roadmap = oldList = newList = keyName = void 0
   }
 
   function diff(oldList, newList, keyName) {
@@ -163,16 +156,10 @@
     init(oldList, newList, keyName)
     //start computing
     compute()
-    //generate the result data
-    var result = {
-      distance: distance,
-      roadmap: roadmap,
-      patches: patches
-    }
     //destory data
     destory()
 
-    return result
+    return patches
   }
 
   diff.DELETION = DELETION
